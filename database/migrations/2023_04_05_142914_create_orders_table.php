@@ -22,8 +22,8 @@ class CreateOrdersTable extends Migration
 
             $table->unsignedBigInteger('shift_worker')->nullable();
             $table->foreign('shift_worker')->references('id')->on('users');
-            $table->enum('status', ['Готовится', 'Принят']);
-            $table->integer('price');
+            $table->string('status')->default('Принят');
+            $table->integer('price')->default(0);
             $table->timestamps();
 
         });

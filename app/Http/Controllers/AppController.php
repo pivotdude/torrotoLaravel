@@ -96,4 +96,78 @@ class AppController extends Controller
         return response()->json(["data" => $smena]);
     }
 
+    public function addOrder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'work_shift_id' => 'required|exists:smenas,id',
+            'table_id' => 'required|int',
+            'count' => 'int',
+        ]);
+        $errors = parent::checkValidationError($validator);
+        if ($errors) {
+            return response()->json($errors);
+        }
+
+        $shema = Smena::find($request->work_shift_id);
+
+        if ($shema->user_id != $request->user()->id) {
+            return response()->json(["error" => ["code" => 403, "message" => "Forbidden. You don't work this shift!"]], 403);
+        }
+        if ($shema->active == 0) {
+            return response()->json(["error" => ["code" => 403, "message" => "Forbidden. The shift must be active!"]], 403);
+        }
+        $table_title = 'Столик №' . $request->table_id;
+        $order = Order::create(['table' => $table_title, 'smena_id' => $request->work_shift_id,'shift_worker' => $request->user()->id]);
+        return response()->json(["data" => $order]);
+
+    }
+
+    public function getOrderById(Request $request, int $orderId)
+    {
+        $order = Order::find($orderId);
+        if ($order) {
+            if ($order->shift_worker != $request->user()->id) {
+                return response()->json(["error" => ['code' => 403, 'message' => 'Forbidden. You did not accept this order!']]);
+            } else {
+                return response()->json(["data" => $order]);
+            }
+        } else {
+            return response()->json(["error" => ['code' => 401, 'message' => 'Заказ не найден']]);
+        }
+    }
+
+    public function getOrders(Request $request, int $smenaId)
+    {
+        $smena = Smena::find($smenaId);
+        $smena->user_id;
+        $request->user()->id;
+        if ($smena->user_id != $request->user()->id) {
+            return response()->json(["error" => ["code" => 403,"message" => "Forbidden. You did not accept this order!"]]);
+        }
+        $orders = Order::where('smena_id', $smenaId)->get();
+        $smena->orders = $orders;
+        return response()->json(["data" => $smena]);
+    }
+
+    public function changeStatus(Request $request, int $orderId)
+    {
+        if (!$request->status) {
+            return response()->json(["error" => ["code" => 403,"message" => "Заказа нет"]]);
+        }
+        $order = Order::where('id', $orderId)->update(["status" => $request->status]);
+        if ($order) {
+            return response()->json(["data" => Order::find($orderId)]);
+        } else {
+            return response()->json(["data" => ['message' => 'Заказ не найден']]);
+        }
+
+    }
+
+    public function getOrdersActiveSmena(Request $request)
+    {
+        $smena = Smena::where('active', 1)->first();
+        $smena_id = $smena->id;
+        $orders = Order::where('smena_id', $smena_id)->get();
+        return response()->json(["data" => $orders]);
+    }
 }

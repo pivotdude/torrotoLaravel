@@ -66,5 +66,7 @@ class Kernel extends HttpKernel
 
         'reqAuth' => \App\Http\Middleware\notAuth::class,
         'adminOnly' => \App\Http\Middleware\adminOnly::class,
+        'walterOnly' => \App\Http\Middleware\walterOnly::class,
+        'cookOnly' => \App\Http\Middleware\cheifOnly::class,
     ];
 }

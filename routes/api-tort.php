@@ -25,12 +25,18 @@ Route::group(["middleware" => ['auth:sanctum', 'reqAuth']], function () {
 Route::group(["middleware" => ['auth:sanctum', 'reqAuth','adminOnly']], function () {
     Route::get('user', [AppController::class, 'getAllUsers']);
     Route::post('user', [AuthController::class, 'registration']);
-    Route::post('work-shift', [AppController::class, 'createSchema']); // Создание смены
-    Route::get('work-shift/{smenaId}/open', [AppController::class, 'openSmena']); // Открытие смены
-    Route::get('work-shift/{smenaId}/close', [AppController::class, 'closeSmena']); // Закрытие смены
-    Route::post('work-shift/{smenaId}/user', [AppController::class, 'addEmployeeOnSmena']); // Закрытие смены
-    Route::get('work-shift/{smenaId}/order', [AppController::class, 'getOrderBySmenaId']); // Закрытие смены
-
-
-
+    Route::post('work-shift', [AppController::class, 'createSchema']);
+    Route::get('work-shift/{smenaId}/open', [AppController::class, 'openSmena']);
+    Route::get('work-shift/{smenaId}/close', [AppController::class, 'closeSmena']);
+    Route::post('work-shift/{smenaId}/user', [AppController::class, 'addEmployeeOnSmena']);
+    Route::get('work-shift/{smenaId}/order', [AppController::class, 'getOrderBySmenaId']);
+});
+Route::group(["middleware" => ['auth:sanctum', 'reqAuth','walterOnly']], function () {
+    Route::post('order', [AppController::class, 'addOrder']);
+    Route::get('order/{orderId}', [AppController::class, 'getOrderById']);
+    Route::get('work-shift/{smenaId}/orders', [AppController::class, 'getOrders']);
+});
+Route::group(["middleware" => ['auth:sanctum', 'reqAuth', 'cookOnly']], function () {
+    Route::patch('order/{orderId}/change-status', [AppController::class, 'changeStatus']);
+    Route::get('order/taken', [AppController::class, 'getOrdersActiveSmena']);
 });
