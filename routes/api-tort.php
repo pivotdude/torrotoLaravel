@@ -28,6 +28,8 @@ Route::group(["middleware" => ['auth:sanctum', 'reqAuth','adminOnly']], function
     Route::post('work-shift', [AppController::class, 'createSchema']); // Создание смены
     Route::get('work-shift/{smenaId}/open', [AppController::class, 'openSmena']); // Открытие смены
     Route::get('work-shift/{smenaId}/close', [AppController::class, 'closeSmena']); // Закрытие смены
+    Route::post('work-shift/{smenaId}/user', [AppController::class, 'addEmployeeOnSmena']); // Закрытие смены
+    Route::get('work-shift/{smenaId}/order', [AppController::class, 'getOrderBySmenaId']); // Закрытие смены
 
 
 
